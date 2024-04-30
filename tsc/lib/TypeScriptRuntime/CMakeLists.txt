@@ -1,4 +1,4 @@
-include_directories("${PROJECT_SOURCE_DIR}/../3rdParty/gc-8.0.4/include/")
+include_directories("${PROJECT_SOURCE_DIR}/../3rdParty/gc-8.0.12/include/")
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWERCASE)
 if(MSVC)
