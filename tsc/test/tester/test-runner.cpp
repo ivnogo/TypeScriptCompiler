@@ -9,11 +9,19 @@
 #define TYPESCRIPT_LIB "TypeScriptAsyncRuntime.lib "
 #define LLVM_LIBS "LLVMSupport.lib "
 #define LIBS "msvcrt" _D_ ".lib ucrt" _D_ ".lib "
+#elif __APPLE__
+#define LIBS "-lc++ -lncurses -frtti -fexceptions"
+#define TYPESCRIPT_LIB "-lTypeScriptAsyncRuntime "
+#define LLVM_LIBS "-lLLVMSupport -lLLVMDemangle "
+#define LIBRARY_EXT ".a"
+#define JIT_LIBRARY_EXT ".dylib"
 #else
 // for Ubuntu 20.04 add -ldl and optionally -rdynamic 
 #define LIBS "-frtti -fexceptions -lstdc++ -lrt -ldl -lpthread -lm -ltinfo"
 #define TYPESCRIPT_LIB "-lTypeScriptAsyncRuntime "
 #define LLVM_LIBS "-lLLVMSupport -lLLVMDemangle "
+#define LIBRARY_EXT ".so"
+#define JIT_LIBRARY_EXT ".so"
 #endif
 
 #ifdef WIN32
@@ -112,7 +120,7 @@ void createJitBatchFile()
     batFile << "FILEPATH=$2" << std::endl;
     batFile << "TSC_OPTS=$3" << std::endl;
     batFile << "TSCEXEPATH=" << TEST_TSC_EXEPATH << std::endl;
-    batFile << "$TSCEXEPATH/tsc --emit=jit $TSC_OPTS --shared-libs=../../lib/libTypeScriptRuntime.so $FILEPATH 1> $FILENAME.txt 2> $FILENAME.err"
+    batFile << "$TSCEXEPATH/tsc --emit=jit $TSC_OPTS --shared-libs=../../lib/libTypeScriptRuntime" << JIT_LIBRARY_EXT << " $FILEPATH 1> $FILENAME.txt 2> $FILENAME.err"
             << std::endl;
     batFile.close();    
 #endif    
@@ -487,14 +495,14 @@ void createSharedMultiBatchFile(std::string tempOutputFileNameNoExt, std::vector
     }
 
     batFile << sharedBat.str();
-    batFile << TEST_COMPILER << " " << linker_opt << " -o lib" << shared_filenameNoExt << ".so " << shared_objs.str() 
+    batFile << TEST_COMPILER << " " << linker_opt << " -o lib" << shared_filenameNoExt << LIBRARY_EXT << " " << shared_objs.str() 
             << "-L$LLVM_LIBPATH -L$GCLIBPATH -L$TSCLIBPATH "
             << TYPESCRIPT_LIB << GC_LIB << LLVM_LIBS << LIBS << std::endl;
     batFile << "rm " << shared_objs.str() << std::endl;
 
     if (jitRun)
     {
-        batFile << "$TSCEXEPATH/tsc --emit=jit " << tsc_opt << " --shared-libs=../../lib/libTypeScriptRuntime.so " << *files.begin() << " 1> $FILENAME.txt 2> $FILENAME.err"
+        batFile << "$TSCEXEPATH/tsc --emit=jit " << tsc_opt << " --shared-libs=../../lib/libTypeScriptRuntime" << JIT_LIBRARY_EXT << " " << *files.begin() << " 1> $FILENAME.txt 2> $FILENAME.err"
                 << std::endl;
     }
     else

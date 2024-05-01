@@ -20,7 +20,7 @@ macro(set_Options_With_FS)
 
 set_Options()
 
-if(MSVC)
+if(MSVC OR APPLE)
 else()
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     else()
