@@ -502,18 +502,24 @@ void createSharedMultiBatchFile(std::string tempOutputFileNameNoExt, std::vector
 
     if (jitRun)
     {
-        batFile << "$TSCEXEPATH/tsc --emit=jit " << tsc_opt << " --shared-libs=../../lib/libTypeScriptRuntime" << JIT_LIBRARY_EXT << " " << *files.begin() << " 1> $FILENAME.txt 2> $FILENAME.err"
+        batFile << "$TSCEXEPATH/tsc --emit=jit " << tsc_opt << " --shared-libs=../../lib/libTypeScriptRuntime" << JIT_LIBRARY_EXT
+                << "  --shared-libs=lib" << shared_filenameNoExt << LIBRARY_EXT
+                << " " << *files.begin() << " 1> $FILENAME.txt 2> $FILENAME.err"
                 << std::endl;
     }
     else
     {
         batFile << execBat.str();
-        batFile << TEST_COMPILER << " -o $FILENAME " << exec_objs.str() << " "; 
+        batFile << TEST_COMPILER << " -o $FILENAME lib" << shared_filenameNoExt << LIBRARY_EXT << " " << exec_objs.str() << " "; 
         batFile << "-L$LLVM_LIBPATH -L$GCLIBPATH -L$TSCLIBPATH ";
         if (sharedLibCompileTypeCompiler)
         {
+#if __APPLE__
+            batFile << "-L`pwd` -l" << shared_filenameNoExt << " ";
+#else
             // we need "-Wl,-rpath=" to embed path for compiled shared lib path
             batFile << "-L`pwd` -Wl,-rpath=`pwd` -l" << shared_filenameNoExt << " ";
+#endif
         }        
 
         batFile << TYPESCRIPT_LIB << GC_LIB << LLVM_LIBS << LIBS << std::endl;
