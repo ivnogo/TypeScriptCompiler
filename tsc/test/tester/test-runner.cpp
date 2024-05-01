@@ -503,14 +503,20 @@ void createSharedMultiBatchFile(std::string tempOutputFileNameNoExt, std::vector
     if (jitRun)
     {
         batFile << "$TSCEXEPATH/tsc --emit=jit " << tsc_opt << " --shared-libs=../../lib/libTypeScriptRuntime" << JIT_LIBRARY_EXT
+#if __APPLE__
                 << "  --shared-libs=lib" << shared_filenameNoExt << LIBRARY_EXT
+#endif
                 << " " << *files.begin() << " 1> $FILENAME.txt 2> $FILENAME.err"
                 << std::endl;
     }
     else
     {
         batFile << execBat.str();
-        batFile << TEST_COMPILER << " -o $FILENAME lib" << shared_filenameNoExt << LIBRARY_EXT << " " << exec_objs.str() << " "; 
+        batFile << TEST_COMPILER << " -o $FILENAME "
+#if __APPLE__
+                << "lib" << shared_filenameNoExt << LIBRARY_EXT << " "
+#endif
+                << exec_objs.str() << " "; 
         batFile << "-L$LLVM_LIBPATH -L$GCLIBPATH -L$TSCLIBPATH ";
         if (sharedLibCompileTypeCompiler)
         {
