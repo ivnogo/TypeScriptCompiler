@@ -6,7 +6,7 @@ echo "Configuring LLVM (Release)"
 echo "Building LLVM (Release)"
 ./scripts/build_llvm_release.sh
 echo "Building GC (Release)"
-curl -o gc-8.0.12.tar.gz https://github.com/ivmai/bdwgc/releases/download/v8.0.12/gc-8.0.12.tar.gz
+curl -o gc-8.0.12.tar.gz -L https://github.com/ivmai/bdwgc/releases/download/v8.0.12/gc-8.0.12.tar.gz
 curl -o libatomic_ops-7.6.10.tar.gz https://www.hboehm.info/gc/gc_source/libatomic_ops-7.6.10.tar.gz
 tar -xvzf gc-8.0.12.tar.gz -C ./3rdParty/
 tar -xvzf libatomic_ops-7.6.10.tar.gz -C ./3rdParty/
