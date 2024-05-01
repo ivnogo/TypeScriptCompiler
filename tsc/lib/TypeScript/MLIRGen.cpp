@@ -1844,13 +1844,14 @@ class MLIRGenImpl
             if (createBoundFunctionOp)
             {
                 // fix create bound if any
+                auto arrowFuncOpType = arrowFuncOp.getFunctionType();
                 TypeSwitch<mlir::Type>(createBoundFunctionOp.getType())
                     .template Case<mlir_ts::BoundFunctionType>([&](auto boundFunc) {
-                        arrowFunctionRefValue.setType(getBoundFunctionType(arrowFuncOp.getFunctionType()));
+                        arrowFunctionRefValue.setType(getBoundFunctionType(arrowFuncOpType));
                     })
                     .template Case<mlir_ts::HybridFunctionType>([&](auto hybridFuncType) {
                         arrowFunctionRefValue.setType(
-                            mlir_ts::HybridFunctionType::get(builder.getContext(), arrowFuncOp.getFunctionType()));
+                            mlir_ts::HybridFunctionType::get(builder.getContext(), arrowFuncOpType));
                     })
                     .Default([&](auto type) { llvm_unreachable("not implemented"); });
             }
