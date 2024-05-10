@@ -858,7 +858,7 @@ class MLIRGenImpl
             return mlirGen(body.as<Statement>(), genContext);
         }
 
-        if (body.is<Expression>())
+        if (isExpression(body))
         {
             auto result = mlirGen(body.as<Expression>(), genContext);
             EXIT_IF_FAILED(result)
@@ -3768,7 +3768,7 @@ class MLIRGenImpl
                 std::make_shared<FunctionParamDOM>(THIS_NAME, genContext.thisType, loc(parametersContextAST)));
         }
 
-        if (parametersContextAST->parent.is<InterfaceDeclaration>())
+        if (parametersContextAST->parent == SyntaxKind::InterfaceDeclaration)
         {
             params.push_back(std::make_shared<FunctionParamDOM>(THIS_NAME, getOpaqueType(), loc(parametersContextAST)));
         }
@@ -5801,7 +5801,7 @@ class MLIRGenImpl
         {
             // strip parenthesizes
             auto expr = stripParentheses(typeOfOp->expression);
-            if (!expr.is<Identifier>())
+            if (expr != SyntaxKind::Identifier)
             {
                 return mlir::failure();
             }
@@ -5871,7 +5871,7 @@ class MLIRGenImpl
     Expression stripParentheses(Expression exprVal)
     {
         auto expr = exprVal;
-        while (expr.is<ParenthesizedExpression>())
+        while (expr == SyntaxKind::ParenthesizedExpression)
         {
             expr = expr.as<ParenthesizedExpression>()->expression;
         }
@@ -5954,7 +5954,7 @@ class MLIRGenImpl
                                                     const GenContext &genContext)
     {
         auto expr = stripParentheses(exprVal);
-        if (expr.is<PropertyAccessExpression>())
+        if (expr == SyntaxKind::PropertyAccessExpression)
         {
             auto isConstVal = isConstValue(constVal, genContext);
             if (!isConstVal)
@@ -6091,7 +6091,7 @@ class MLIRGenImpl
             if (op == SyntaxKind::InstanceOfKeyword)
             {
                 auto instanceOf = binExpr;
-                if (instanceOf->left.is<Identifier>())
+                if (instanceOf->left == SyntaxKind::Identifier)
                 {
                     NodeFactory nf(NodeFactoryFlags::None);
                     return addSafeCastStatement(instanceOf->left, nf.createTypeReferenceNode(instanceOf->right),
@@ -6241,7 +6241,7 @@ class MLIRGenImpl
 
         // initializer
         // TODO: why do we have ForInitialier
-        if (forStatementAST->initializer.is<Expression>())
+        if (isExpression(forStatementAST->initializer))
         {
             auto result = mlirGen(forStatementAST->initializer.as<Expression>(), genContext);
             EXIT_IF_FAILED_OR_NO_VALUE(result)
@@ -6251,7 +6251,7 @@ class MLIRGenImpl
                 return mlir::failure();
             }
         }
-        else if (forStatementAST->initializer.is<VariableDeclarationList>())
+        else if (forStatementAST->initializer == SyntaxKind::VariableDeclarationList)
         {
             auto result = mlirGen(forStatementAST->initializer.as<VariableDeclarationList>(), genContext);
             EXIT_IF_FAILED(result)
@@ -6865,7 +6865,7 @@ class MLIRGenImpl
 
         // to support safe cast
         std::function<void(Expression, mlir::Value)> safeCastLogic;
-        if (switchExpr.is<PropertyAccessExpression>())
+        if (switchExpr == SyntaxKind::PropertyAccessExpression)
         {
             auto propertyAccessExpressionOp = switchExpr.as<PropertyAccessExpression>();
             auto objAccessExpression = propertyAccessExpressionOp->expression;

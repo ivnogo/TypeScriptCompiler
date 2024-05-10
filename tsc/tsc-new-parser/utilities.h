@@ -1827,6 +1827,11 @@ inline auto isClassMemberModifier(SyntaxKind idToken) -> boolean
     return isParameterPropertyModifier(idToken) || idToken == SyntaxKind::StaticKeyword;
 }
 
+inline static auto isExpression(Node node) -> boolean
+{
+    return !!node.is<Expression>();
+}
+
 inline static auto isNamedDeclaration(Node node) -> boolean
 {
     return !!node.is<NamedDeclaration>(); // A 'name' property should always be a DeclarationName.
