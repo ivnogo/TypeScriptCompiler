@@ -858,21 +858,16 @@ class MLIRGenImpl
             return mlirGen(body.as<Statement>(), genContext);
         }
 
-        if (isExpression(body))
+        auto result = mlirGen(body.as<Expression>(), genContext);
+        EXIT_IF_FAILED(result)
+        auto resultValue = V(result);
+        if (resultValue)
         {
-            auto result = mlirGen(body.as<Expression>(), genContext);
-            EXIT_IF_FAILED(result)
-            auto resultValue = V(result);
-            if (resultValue)
-            {
-                return mlirGenReturnValue(loc(body), resultValue, false, genContext);
-            }
-
-            builder.create<mlir_ts::ReturnOp>(loc(body));
-            return mlir::success();
+            return mlirGenReturnValue(loc(body), resultValue, false, genContext);
         }
 
-        llvm_unreachable("unknown body type");
+        builder.create<mlir_ts::ReturnOp>(loc(body));
+        return mlir::success();
     }
 
     void clearState(NodeArray<Statement> statements)
@@ -6241,7 +6236,16 @@ class MLIRGenImpl
 
         // initializer
         // TODO: why do we have ForInitialier
-        if (isExpression(forStatementAST->initializer))
+        if (forStatementAST->initializer == SyntaxKind::VariableDeclarationList)
+        {
+            auto result = mlirGen(forStatementAST->initializer.as<VariableDeclarationList>(), genContext);
+            EXIT_IF_FAILED(result)
+            if (failed(result))
+            {
+                return result;
+            }
+        }
+        else
         {
             auto result = mlirGen(forStatementAST->initializer.as<Expression>(), genContext);
             EXIT_IF_FAILED_OR_NO_VALUE(result)
@@ -6249,15 +6253,6 @@ class MLIRGenImpl
             if (!init)
             {
                 return mlir::failure();
-            }
-        }
-        else if (forStatementAST->initializer == SyntaxKind::VariableDeclarationList)
-        {
-            auto result = mlirGen(forStatementAST->initializer.as<VariableDeclarationList>(), genContext);
-            EXIT_IF_FAILED(result)
-            if (failed(result))
-            {
-                return result;
             }
         }
 
