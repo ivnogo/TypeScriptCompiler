@@ -1829,7 +1829,48 @@ inline auto isClassMemberModifier(SyntaxKind idToken) -> boolean
 
 inline static auto isNamedDeclaration(Node node) -> boolean
 {
-    return !!node.is<NamedDeclaration>(); // A 'name' property should always be a DeclarationName.
+    switch ((SyntaxKind)node) {
+        case SyntaxKind::BindingElement:
+        case SyntaxKind::ClassStaticBlockDeclaration:
+        case SyntaxKind::PropertyDeclaration:
+        case SyntaxKind::SemicolonClassElement:
+        case SyntaxKind::PropertySignature:
+        case SyntaxKind::CallSignature:
+        case SyntaxKind::ConstructSignature:
+        case SyntaxKind::GetAccessor:
+        case SyntaxKind::SetAccessor:
+        case SyntaxKind::ArrowFunction:
+        case SyntaxKind::Constructor:
+        case SyntaxKind::FunctionDeclaration:
+        case SyntaxKind::FunctionExpression:
+        case SyntaxKind::MethodDeclaration:
+        case SyntaxKind::ConstructorType:
+        case SyntaxKind::FunctionType:
+        case SyntaxKind::IndexSignature:
+        case SyntaxKind::JSDocFunctionType:
+        case SyntaxKind::MethodSignature:
+        case SyntaxKind::ClassDeclaration:
+        case SyntaxKind::ClassExpression:
+        case SyntaxKind::EnumMember:
+        case SyntaxKind::ImportClause:
+        case SyntaxKind::ImportSpecifier:
+        case SyntaxKind::ExportSpecifier:
+        case SyntaxKind::ModuleBlock:
+        case SyntaxKind::ModuleDeclaration:
+        case SyntaxKind::NamespaceImport:
+        case SyntaxKind::NamespaceExport:
+        case SyntaxKind::JsxAttribute:
+        case SyntaxKind::JsxSpreadAttribute:
+        case SyntaxKind::PropertyAssignment:
+        case SyntaxKind::ShorthandPropertyAssignment:
+        case SyntaxKind::SpreadAssignment:
+        case SyntaxKind::Parameter:
+        case SyntaxKind::TypeParameter:
+        case SyntaxKind::VariableDeclaration:
+            return true;
+        default:
+            return false;
+    }
 }
 
 inline static auto isPropertyName(Node node) -> boolean
